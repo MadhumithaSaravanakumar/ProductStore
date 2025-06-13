@@ -26,7 +26,9 @@ namespace Products.WebAPI.Controllers
         {
             var query = new GetAllProductsQuery();
             var products = await _mediator.Send(query);
+
             var response = products.Select(ProductMapper.ToResponseDto);
+
             return Ok(response);
         }
 
@@ -35,7 +37,9 @@ namespace Products.WebAPI.Controllers
         {
             var query = new GetProductByIdQuery { Id = id };
             var product = await _mediator.Send(query);
+
             if (product == null) return NotFound();
+
             return Ok(ProductMapper.ToResponseDto(product));
         }
 
@@ -47,8 +51,10 @@ namespace Products.WebAPI.Controllers
                 return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
 
             var product = ProductMapper.ToDomain(productDto);
+
             var command = new AddProductCommand { Product = product };
             var rowsAffected = await _mediator.Send(command);
+
             return CreatedAtAction(nameof(GetById), new { id = product.Id }, new { id = product.Id });
         }
 
@@ -61,9 +67,12 @@ namespace Products.WebAPI.Controllers
 
             var product = ProductMapper.ToDomain(productDto);
             product.Id = id;
+
             var command = new UpdateProductCommand { Product = product };
             var updatedProductId = await _mediator.Send(command);
+
             if (updatedProductId == 0) return NotFound();
+
             return Ok(new { id = updatedProductId });
         }
 
@@ -72,7 +81,9 @@ namespace Products.WebAPI.Controllers
         {
             var command = new DeleteProductCommand { Id = id };
             var deletedProductId = await _mediator.Send(command);
+
             if (deletedProductId == 0) return NotFound();
+
             return Ok(new { id = deletedProductId });
         }
 
@@ -81,6 +92,7 @@ namespace Products.WebAPI.Controllers
         {
             var query = new SearchProductsByNameQuery { Name = name };
             var products = await _mediator.Send(query);
+
             var response = products.Select(ProductMapper.ToResponseDto);
             return Ok(response);
         }

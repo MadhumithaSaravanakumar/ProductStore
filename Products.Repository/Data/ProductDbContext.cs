@@ -21,8 +21,8 @@ namespace Products.Repository.Data
                 .IsRowVersion();
 
             modelBuilder.Entity<Product>().HasData(
-                new Product { Id = 1, Name = "Sample Product", Description = "Sample Description", Stock = 10 },
-                new Product { Id = 2, Name = "Another Product", Description = "Another Description", Stock = 20 }
+                new Product { Id = 100000, Name = "Sample Product", Description = "Sample Description", Stock = 10 },
+                new Product { Id = 100001, Name = "Another Product", Description = "Another Description", Stock = 20 }
             );
         }
     }

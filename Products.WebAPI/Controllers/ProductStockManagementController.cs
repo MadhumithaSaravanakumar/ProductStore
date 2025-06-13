@@ -26,8 +26,10 @@ namespace Products.WebAPI.Controllers
             var validationResult = _validator.Validate(quantity);
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+
             var command = new DecrementStockCommand { Id = id, Quantity = quantity };
             var response = await _mediator.Send(command);
+
             if (response.Stock < 0) return NotFound();
             return Ok(new { stock = response });
         }
@@ -38,8 +40,10 @@ namespace Products.WebAPI.Controllers
             var validationResult = _validator.Validate(quantity);
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+
             var command = new IncrementStockCommand { Id = id, Quantity = quantity };
             var response = await _mediator.Send(command);
+
             if (response.Stock < 0) return NotFound();
             return Ok(new { stock = response });
         }
@@ -49,7 +53,9 @@ namespace Products.WebAPI.Controllers
         {
             var query = new GetProductsByStockLevelQuery { Min = min, Max = max };
             var products = await _mediator.Send(query);
+
             var response = products.Select(ProductMapper.ToResponseDto);
+
             return Ok(response);
         }
     }
