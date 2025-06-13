@@ -57,6 +57,10 @@ namespace Products.Repository
                     existing.Description = product.Description;
                     existing.Stock = product.Stock;
 
+                    // Set RowVersion from client (for concurrency check)
+                    if (product.RowVersion != null)
+                        _context.Entry(existing).Property("RowVersion").OriginalValue = product.RowVersion;
+
                     // Save changes (EF will handle RowVersion automatically)
                     await _context.SaveChangesAsync();
                     return existing.Id;
