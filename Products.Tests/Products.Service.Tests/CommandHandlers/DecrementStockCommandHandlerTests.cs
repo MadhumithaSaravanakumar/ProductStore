@@ -40,7 +40,7 @@ namespace Products.Tests.Products.Service.Tests.CommandHandlers
             var result = await handler.Handle(command, CancellationToken.None);
 
             // Then
-            result.Should().BeEquivalentTo(DecrementStockResult.NotFoundResult());
+            result.Should().BeEquivalentTo(DecrementStockResult.StockUnavailableResult(product.Stock));
         }
 
         [Fact]

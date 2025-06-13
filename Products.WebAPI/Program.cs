@@ -15,7 +15,7 @@ builder.Services.AddDbContext<ProductDbContext>(options =>
 builder.Services.AddServices();
 builder.Services.AddScoped<IValidator<ProductDto>, ProductDtoValidator>();
 builder.Services.AddScoped<IValidator<int>, StockValidator>();
-
+builder.Services.AddScoped<IValidator<StockLevelRangeDto>, StockLevelRangeDtoValidator>();
 
 builder.Services.AddControllers();
 

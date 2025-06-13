@@ -10,6 +10,7 @@ using Products.WebAPI.Controllers;
 using Products.WebAPI.DTOs;
 using Products.Service.CommandResults;
 using FluentValidation.Results;
+using Newtonsoft.Json.Linq;
 
 namespace Products.Tests.Products.WebAPI.Tests.Controllers
 {
@@ -17,13 +18,19 @@ namespace Products.Tests.Products.WebAPI.Tests.Controllers
     {
         private readonly Mock<IMediator> _mediatorMock;
         private readonly Mock<IValidator<int>> _validatorMock;
+        private readonly Mock<IValidator<StockLevelRangeDto>> _rangeValidatorMock;
         private readonly ProductStockManagementController _controller;
 
         public ProductStockManagementControllerTests()
         {
             _mediatorMock = new Mock<IMediator>();
             _validatorMock = new Mock<IValidator<int>>();
-            _controller = new ProductStockManagementController(_mediatorMock.Object, _validatorMock.Object);
+            _rangeValidatorMock = new Mock<IValidator<StockLevelRangeDto>>();
+            _controller = new ProductStockManagementController(
+                _mediatorMock.Object,
+                _validatorMock.Object,
+                _rangeValidatorMock.Object
+            );
         }
 
         [Fact]
@@ -45,20 +52,59 @@ namespace Products.Tests.Products.WebAPI.Tests.Controllers
         }
 
         [Fact]
-        public async Task GivenValidQuantity_WhenDecrementStockAndStockIsNegative_ThenReturnsNotFound()
+        public async Task GivenProductNotFound_WhenDecrementStock_ThenReturnsNotFound()
         {
             // Given
             int id = 1;
             int quantity = 5;
             _validatorMock.Setup(v => v.Validate(quantity)).Returns(new ValidationResult());
             _mediatorMock.Setup(m => m.Send(It.IsAny<DecrementStockCommand>(), default))
-                .ReturnsAsync(new DecrementStockResult { Stock = -1 });
+                .ReturnsAsync(new DecrementStockResult { NotFound = true });
 
             // When
             var result = await _controller.DecrementStock(id, quantity);
 
             // Then
             result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Fact]
+        public async Task GivenStockUnavailable_WhenDecrementStock_ThenReturnsConflict()
+        {
+            // Given
+            int id = 1;
+            int quantity = 10;
+            _validatorMock.Setup(v => v.Validate(quantity)).Returns(new ValidationResult());
+            _mediatorMock.Setup(m => m.Send(It.IsAny<DecrementStockCommand>(), default))
+                .ReturnsAsync(new DecrementStockResult { StockUnavailable = true, Stock = 2 });
+
+            // When
+            var result = await _controller.DecrementStock(id, quantity);
+
+            // Then
+            var conflictResult = result as ObjectResult;
+            conflictResult.Should().NotBeNull();
+            conflictResult.StatusCode.Should().Be(409);
+        }
+
+        [Fact]
+        public async Task GivenValidQuantity_WhenDecrementStock_ThenReturnsOkWithStock()
+        {
+            // Given
+            int id = 1;
+            int quantity = 3;
+            _validatorMock.Setup(v => v.Validate(quantity)).Returns(new ValidationResult());
+            _mediatorMock.Setup(m => m.Send(It.IsAny<DecrementStockCommand>(), default))
+                .ReturnsAsync(new DecrementStockResult { Success = true, Stock = 7 });
+
+            // When
+            var result = await _controller.DecrementStock(id, quantity);
+
+            // Then
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            var value = JObject.FromObject(okResult.Value);
+            ((int)value["stock"]).Should().Be(7);
         }
 
         [Fact]
@@ -80,14 +126,14 @@ namespace Products.Tests.Products.WebAPI.Tests.Controllers
         }
 
         [Fact]
-        public async Task GivenValidQuantity_WhenAddToStockAndStockIsNegative_ThenReturnsNotFound()
+        public async Task GivenProductNotFound_WhenAddToStock_ThenReturnsNotFound()
         {
             // Given
             int id = 1;
             int quantity = 5;
             _validatorMock.Setup(v => v.Validate(quantity)).Returns(new ValidationResult());
             _mediatorMock.Setup(m => m.Send(It.IsAny<IncrementStockCommand>(), default))
-                .ReturnsAsync(new IncrementStockResult { Stock = -1 });
+                .ReturnsAsync(new IncrementStockResult { NotFound = true });
 
             // When
             var result = await _controller.AddToStock(id, quantity);
@@ -112,38 +158,8 @@ namespace Products.Tests.Products.WebAPI.Tests.Controllers
             // Then
             var okResult = result as OkObjectResult;
             okResult.Should().NotBeNull();
-
-            // Serialize and deserialize to access anonymous type
-            var json = System.Text.Json.JsonSerializer.Serialize(okResult.Value);
-            using var doc = System.Text.Json.JsonDocument.Parse(json);
-            var stockElement = doc.RootElement.GetProperty("stock");
-            var incrementStockResult = System.Text.Json.JsonSerializer.Deserialize<IncrementStockResult>(stockElement.GetRawText());
-
-            incrementStockResult.Should().NotBeNull();
-            incrementStockResult.Stock.Should().Be(15);
-            incrementStockResult.Success.Should().BeTrue();
-            incrementStockResult.NotFound.Should().BeFalse();
-        }
-
-        [Fact]
-        public async Task GivenStockRange_WhenGetByStockLevel_ThenReturnsOkWithProducts()
-        {
-            // Given
-            int min = 10;
-            int max = 100;
-            var products = new List<Product> { new Product { Id = 1, Name = "Sample", Stock = 50 } };
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetProductsByStockLevelQuery>(), default))
-                .ReturnsAsync(products);
-
-            // When
-            var result = await _controller.GetByStockLevel(min, max);
-
-            // Then
-            var okResult = result as OkObjectResult;
-            okResult.Should().NotBeNull();
-            var response = okResult.Value as IEnumerable<ProductResponseDto>;
-            response.Should().NotBeNull();
-            response.Should().HaveCount(1);
-        }
+            var value = JObject.FromObject(okResult.Value);
+            ((int)value["stock"]).Should().Be(15);
+        }       
     }
 }

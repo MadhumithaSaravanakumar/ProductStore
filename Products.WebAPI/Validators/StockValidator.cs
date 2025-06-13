@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Products.WebAPI.DTOs;
 
 namespace Products.WebAPI.Validators
 {
@@ -8,8 +7,8 @@ namespace Products.WebAPI.Validators
         public StockValidator()
         {
             RuleFor(q => q)
-                .GreaterThanOrEqualTo(0)
-                .WithMessage("Quantity must be non-negative.");
+                .GreaterThan(0)
+                .WithMessage("Quantity must be greater than zero.");
         }
     }
 }

@@ -21,11 +21,11 @@ namespace Products.Tests.Products.WebAPI.Tests.Validators
             // Then
             result.IsValid.Should().BeFalse();
             result.ShouldHaveValidationErrorFor(q => q)
-                .WithErrorMessage("Quantity must be non-negative.");
+                .WithErrorMessage("Quantity must be greater than zero.");
         }
 
         [Fact]
-        public void GivenZeroQuantity_WhenValidate_ThenValidationSucceeds()
+        public void GivenZeroQuantity_WhenValidate_ThenValidationFails()
         {
             // Given
             int quantity = 0;
@@ -34,7 +34,9 @@ namespace Products.Tests.Products.WebAPI.Tests.Validators
             var result = _validator.TestValidate(quantity);
 
             // Then
-            result.IsValid.Should().BeTrue();
+            result.IsValid.Should().BeFalse();
+            result.ShouldHaveValidationErrorFor(q => q)
+                .WithErrorMessage("Quantity must be greater than zero.");
         }
 
         [Fact]

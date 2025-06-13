@@ -5,6 +5,6 @@ namespace Products.Service.Commands
 {
     public class UpdateProductCommand : IRequest<int>
     {
-        public Product Product { get; set; }
+        public required Product Product { get; set; }
     }
 }

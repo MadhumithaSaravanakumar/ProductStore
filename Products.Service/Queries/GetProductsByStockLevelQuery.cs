@@ -5,7 +5,7 @@ namespace Products.Service.Queries
 {
     public class GetProductsByStockLevelQuery : IRequest<IEnumerable<Product>>
     {
-        public int Min { get; set; }
-        public int Max { get; set; }
+        public required int Min { get; set; }
+        public required int Max { get; set; }
     }
 }

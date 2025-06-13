@@ -5,6 +5,6 @@ namespace Products.Service.Commands
 {
     public class AddProductCommand : IRequest<int>
     {
-        public Product Product { get; set; }
+        public required Product Product { get; set; }
     }
 }

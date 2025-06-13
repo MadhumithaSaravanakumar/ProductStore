@@ -1,6 +1,7 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Products.Service.Commands;
 using Products.Service.Queries;
 using Products.WebAPI.DTOs;
@@ -88,7 +89,7 @@ namespace Products.WebAPI.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string name)
+        public async Task<IActionResult> Search([FromQuery, BindRequired] string name)
         {
             var query = new SearchProductsByNameQuery { Name = name };
             var products = await _mediator.Send(query);

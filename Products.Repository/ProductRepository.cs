@@ -49,9 +49,17 @@ namespace Products.Repository
             await ExceptionExecutor.ExecuteWithExceptionHandling(
                 async () =>
                 {
-                    _context.Products.Update(product);
+                    // Fetch the latest entity from the database
+                    var existing = await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id) ?? throw new RepositoryException(RepositoryErrorMessages.UpdateNotFound, 404);
+
+                    // Update properties (except RowVersion)
+                    existing.Name = product.Name;
+                    existing.Description = product.Description;
+                    existing.Stock = product.Stock;
+
+                    // Save changes (EF will handle RowVersion automatically)
                     await _context.SaveChangesAsync();
-                    return product.Id;
+                    return existing.Id;
                 },
                 RepositoryErrorMessages.UpdateFailed
             );

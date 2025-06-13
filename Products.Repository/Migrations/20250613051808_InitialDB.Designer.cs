@@ -11,7 +11,7 @@ using Products.Repository.Data;
 namespace Products.Repository.Migrations
 {
     [DbContext(typeof(ProductDbContext))]
-    [Migration("20250612090546_InitialDB")]
+    [Migration("20250613051808_InitialDB")]
     partial class InitialDB
     {
         /// <inheritdoc />
@@ -24,7 +24,7 @@ namespace Products.Repository.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Products.Domain.Product", b =>
+            modelBuilder.Entity("Products.Common.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int");
@@ -38,6 +38,11 @@ namespace Products.Repository.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
@@ -48,14 +53,14 @@ namespace Products.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = 100000,
                             Description = "Sample Description",
                             Name = "Sample Product",
                             Stock = 10
                         },
                         new
                         {
-                            Id = 2,
+                            Id = 100001,
                             Description = "Another Description",
                             Name = "Another Product",
                             Stock = 20

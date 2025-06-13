@@ -17,7 +17,7 @@ namespace Products.Service.CommandHandlers
         public async Task<IncrementStockResult> Handle(IncrementStockCommand request, CancellationToken cancellationToken)
         {           
             var product = await _repository.GetByIdAsync(request.Id);
-            if (product == null || product.Stock < request.Quantity)
+            if (product == null)
                 return IncrementStockResult.NotFoundResult();
 
             product.Stock += request.Quantity;
