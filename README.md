@@ -7,7 +7,10 @@ ProductManagement is a modular .NET solution designed for scalable, maintainable
 - **Entity Framework Core**: Code-first approach with migrations for robust data access.
 - **Dependency Injection**: Promotes loose coupling and testability.
 - **Command/Query Responsibility Segregation (CQRS)**: Clear separation between read and write operations.
+- **Mediator Pattern**: Decouples request handling using MediatR for clean command and query processing.
+- **Concurrency Handling**: Implements optimistic concurrency control to ensure data consistency during updates.
 - **Exception Handling**: Centralized and consistent error management.
+- **Validations** : All the attributes are validated using Fluent Validation.
 - **Unit Testing**: Ensures code quality and reliability.
 - **.NET 8.0**: Leverages the latest features and performance improvements.
 
@@ -63,7 +66,7 @@ ProductManagement is a modular .NET solution designed for scalable, maintainable
    cd ../Products.WebAPI
    dotnet run
    ```
-   - The API will be available at `https://localhost:5001` or as configured.
+   - The Swagger page will popup with endpoints implemented.
 
 7. **Run Tests**
    ```sh
